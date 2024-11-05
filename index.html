@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Folder Structure</title>
+    <style>
+        .folder, .file {
+            margin-left: 20px;
+            cursor: pointer;
+        }
+        .sub-folder {
+            display: none;
+            margin-left: 20px;
+        }
+        .controls {
+            margin-top: 10px;
+        }
+        .selected {
+            font-weight: bold;
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dynamic Folder Structure</h1>
+    <div id="folderStructure">
+        <div class="folder" onclick="toggleFolder(this); selectFolder(this)">📁 Root Folder</div>
+        <div class="sub-folder"></div>
+    </div>
+    
+    <div class="controls">
+        <input type="text" id="newItemName" placeholder="Enter name">
+        <select id="itemType">
+            <option value="folder">Folder</option>
+            <option value="file">File</option>
+        </select>
+        <button onclick="addItem()">Add</button>
+    </div>
+
+    <p id="selectedFolderDisplay">Selected Folder: Root Folder</p>
+
+    <script>
+        let selectedFolder = document.querySelector(".sub-folder");
+
+        // 폴더 선택 기능
+        function selectFolder(element) {
+            // 모든 폴더에서 선택된 클래스 제거
+            document.querySelectorAll('.folder').forEach(folder => {
+                folder.classList.remove('selected');
+            });
+
+            // 선택한 폴더 강조 및 전역 변수 설정
+            element.classList.add('selected');
+            selectedFolder = element.nextElementSibling;
+            document.getElementById("selectedFolderDisplay").textContent = "Selected Folder: " + element.textContent;
+        }
+
+        // 트리 구조에서 폴더 열고 닫기
+        function toggleFolder(element) {
+            const subFolder = element.nextElementSibling;
+            if (subFolder && subFolder.classList.contains("sub-folder")) {
+                subFolder.style.display = subFolder.style.display === "block" ? "none" : "block";
+            }
+        }
+
+        // 새로운 폴더/파일 추가 기능
+        function addItem() {
+            const itemName = document.getElementById("newItemName").value;
+            const itemType = document.getElementById("itemType").value;
+
+            if (!itemName) {
+                alert("Please enter a name.");
+                return;
+            }
+
+            const newItem = document.createElement("div");
+            newItem.innerHTML = itemType === "folder" ? `📁 ${itemName}` : `📄 ${itemName}`;
+            newItem.className = itemType === "folder" ? "folder" : "file";
+            
+            // 폴더일 경우 클릭 시 열고 닫을 수 있도록 설정
+            if (itemType === "folder") {
+                newItem.onclick = function() { 
+                    toggleFolder(this); 
+                    selectFolder(this); 
+                };
+
+                // 폴더 하위에 새로운 서브 폴더 컨테이너 추가
+                const subFolder = document.createElement("div");
+                subFolder.className = "sub-folder";
+                subFolder.style.display = "block";
+                subFolder.style.marginLeft = "20px";
+                selectedFolder.appendChild(newItem);
+                selectedFolder.appendChild(subFolder);
+            } else {
+                // 파일일 경우 클릭 기능 없음
+                selectedFolder.appendChild(newItem);
+            }
+
+            // 입력 필드 초기화
+            document.getElementById("newItemName").value = "";
+        }
+    </script>
+</body>
+</html>
+
+<!-- FE: 선택지를 누르면 팝업창을 띄워지는
+BE: 고정 id 체제? 혹은 parent 체제? -->
