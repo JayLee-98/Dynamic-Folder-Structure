@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Like and Feedback Flow</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .like-container {
+            margin: 20px;
+            text-align: center;
+        }
+
+        .like-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .like-button:hover {
+            background-color: #0056b3;
+        }
+
+        .like-count {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .toast-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1000;
+            text-align: center;
+            width: 300px;
+        }
+
+        .toast-message.show {
+            display: block;
+        }
+
+        .feedback-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .feedback-list {
+            margin-top: 10px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .feedback-list .feedback-item {
+            margin: 5px 0;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="like-container">
+        <button id="likeButton" class="like-button">좋아요</button>
+        <div id="likeCount" class="like-count">좋아요: 0</div>
+    </div>
+
+    <div id="toastMessage" class="toast-message">피드백을 입력하려면 클릭하세요.</div>
+
+    <div class="feedback-container">
+        <h3>제출된 피드백</h3>
+        <div id="feedbackList" class="feedback-list"></div>
+    </div>
+
+    <div id="popup" class="toast-message">
+        <h3>피드백 입력</h3>
+        <textarea id="feedbackInput" placeholder="피드백을 입력하세요..."></textarea>
+        <button onclick="submitFeedback()">제출</button>
+        <button onclick="closePopup()">닫기</button>
+    </div>
+
+    <script>
+        let likeCount = 0;
+        const likeButton = document.getElementById('likeButton');
+        const likeCountDisplay = document.getElementById('likeCount');
+        const toastMessage = document.getElementById('toastMessage');
+        const popup = document.getElementById('popup');
+        const feedbackList = document.getElementById('feedbackList');
+
+        // 좋아요 버튼 클릭 이벤트
+        likeButton.addEventListener('click', () => {
+            likeCount++;
+            likeCountDisplay.textContent = `좋아요: ${likeCount}`;
+            
+            // 토스트 메시지 표시
+            showToastMessage();
+        });
+
+        // 토스트 메시지 표시 함수
+        function showToastMessage() {
+            toastMessage.classList.add('show');
+
+            // 3초 후 자동으로 숨김
+            setTimeout(() => {
+                toastMessage.classList.remove('show');
+            }, 3000);
+
+            // 클릭하면 피드백 입력 가능
+            toastMessage.addEventListener('click', openFeedbackPopup);
+        }
+
+        // 피드백 팝업 열기
+        function openFeedbackPopup() {
+            popup.style.display = 'block';
+            toastMessage.classList.remove('show'); // 토스트 메시지 숨기기
+            toastMessage.removeEventListener('click', openFeedbackPopup); // 클릭 이벤트 제거
+        }
+
+        // 피드백 팝업 닫기
+        function closePopup() {
+            popup.style.display = 'none';
+        }
+
+        // 피드백 제출
+        function submitFeedback() {
+            const feedbackInput = document.getElementById('feedbackInput');
+            const feedbackText = feedbackInput.value.trim();
+
+            if (!feedbackText) {
+                alert('피드백을 입력해주세요.');
+                return;
+            }
+
+            // 피드백 리스트에 추가
+            const feedbackItem = document.createElement('div');
+            feedbackItem.className = 'feedback-item';
+            feedbackItem.textContent = feedbackText;
+
+            feedbackList.appendChild(feedbackItem);
+
+            // 입력값 초기화 및 팝업 닫기
+            feedbackInput.value = '';
+            closePopup();
+        }
+    </script>
+</body>
+</html>
