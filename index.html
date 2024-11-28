@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Folder Structure</title>
+    <title>Dynamic Folder Structure with Floating Menu</title>
     <style>
         .folder, .file {
             margin-left: 20px;
@@ -20,10 +20,28 @@
             font-weight: bold;
             color: blue;
         }
+        .floating-menu {
+            position: absolute;
+            display: none;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 200px;
+            z-index: 1000;
+        }
+        .floating-menu .file {
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        .floating-menu .file:hover {
+            background: #f0f0f0;
+        }
     </style>
 </head>
 <body>
-    <h1>Dynamic Folder Structure</h1>
+    <h1>Dynamic Folder Structure with Floating Menu</h1>
     <div id="folderStructure">
         <div class="folder" onclick="toggleFolder(this); selectFolder(this)">📁 Root Folder</div>
         <div class="sub-folder"></div>
@@ -38,19 +56,25 @@
         <button onclick="addItem()">Add</button>
     </div>
 
+    <button id="attachmentButton" onclick="toggleFloatingMenu()">첨부파일</button>
+    <div id="floatingMenu" class="floating-menu">
+        <div class="file">📄 File 1</div>
+        <div class="file">📄 File 2</div>
+        <div class="file">📄 File 3</div>
+    </div>
+
     <p id="selectedFolderDisplay">Selected Folder: Root Folder</p>
 
     <script>
         let selectedFolder = document.querySelector(".sub-folder");
+        const floatingMenu = document.getElementById("floatingMenu");
 
         // 폴더 선택 기능
         function selectFolder(element) {
-            // 모든 폴더에서 선택된 클래스 제거
             document.querySelectorAll('.folder').forEach(folder => {
                 folder.classList.remove('selected');
             });
 
-            // 선택한 폴더 강조 및 전역 변수 설정
             element.classList.add('selected');
             selectedFolder = element.nextElementSibling;
             document.getElementById("selectedFolderDisplay").textContent = "Selected Folder: " + element.textContent;
@@ -77,32 +101,45 @@
             const newItem = document.createElement("div");
             newItem.innerHTML = itemType === "folder" ? `📁 ${itemName}` : `📄 ${itemName}`;
             newItem.className = itemType === "folder" ? "folder" : "file";
-            
-            // 폴더일 경우 클릭 시 열고 닫을 수 있도록 설정
-            if (itemType === "folder") {
-                newItem.onclick = function() { 
-                    toggleFolder(this); 
-                    selectFolder(this); 
-                };
 
-                // 폴더 하위에 새로운 서브 폴더 컨테이너 추가
+            if (itemType === "folder") {
+                newItem.onclick = function() { toggleFolder(this); selectFolder(this); };
                 const subFolder = document.createElement("div");
                 subFolder.className = "sub-folder";
                 subFolder.style.display = "block";
-                subFolder.style.marginLeft = "20px";
                 selectedFolder.appendChild(newItem);
                 selectedFolder.appendChild(subFolder);
             } else {
-                // 파일일 경우 클릭 기능 없음
                 selectedFolder.appendChild(newItem);
             }
 
-            // 입력 필드 초기화
             document.getElementById("newItemName").value = "";
         }
+
+        // 플로팅 메뉴 표시/숨김
+        function toggleFloatingMenu() {
+            const button = document.getElementById("attachmentButton");
+            const rect = button.getBoundingClientRect();
+
+            // 위치 계산
+            floatingMenu.style.left = `${rect.left}px`;
+            floatingMenu.style.top = `${rect.top - floatingMenu.offsetHeight}px`;
+
+            // 표시/숨김 토글
+            if (floatingMenu.style.display === "block") {
+                floatingMenu.style.display = "none";
+            } else {
+                floatingMenu.style.display = "block";
+            }
+        }
+
+        // 페이지 클릭 시 메뉴 숨기기
+        document.addEventListener("click", (event) => {
+            const isClickInside = floatingMenu.contains(event.target) || event.target.id === "attachmentButton";
+            if (!isClickInside) {
+                floatingMenu.style.display = "none";
+            }
+        });
     </script>
 </body>
 </html>
-
-<!-- FE: 선택지를 누르면 팝업창을 띄워지는
-BE: 고정 id 체제? 혹은 parent 체제? -->
